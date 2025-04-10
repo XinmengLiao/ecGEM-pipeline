@@ -38,7 +38,7 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
    1) `metName.inhouseDB.txt`: Extracted SMILEs by metabolites' names from PubChem API.
    2) `organism.txt`: KEGG prokaryote organism names and ID, for extracting the KEGG ID. 
    3) `taxonomy.R`: Fuzzy matching taxonomies for each bin to KEGG and Uniprot database to extract the KEGG ID and Uniprot ID. 
-   4) `UniprotID1.txt` and `UniprotID2.txt: Uniprot ID for extracting EC numbers from Uniprot by species name.
+   4) `UniprotID1.txt` and `UniprotID2.txt`: Uniprot ID for extracting EC numbers from Uniprot by species name. Github does not accept file larger than 25MB so split into two files.
    5) `kegglist.txt`: KEGG prokaryote organism names and ID, for extracting the EC numbers from KEGG by species name.
 
 scripts to run matlab locally
