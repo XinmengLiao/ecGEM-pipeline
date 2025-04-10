@@ -25,8 +25,8 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 9. Annotating prokaryotic genome (Prokka): ``
 
 ### MatLab-scripts
-1. Extracting metabolites' name from GEMs.
-2. Converting GEMs to ecGEMs and FVA.
+1. Extracting metabolites' name from GEMs: `meta-gecko-extractMet.m`
+2. Converting GEMs to ecGEMs and FVA: `meta-gecko.m`
 3. Changed functions of GECKO3.
 4. Other related files: `metName.inhouseDB.txt` 
 
