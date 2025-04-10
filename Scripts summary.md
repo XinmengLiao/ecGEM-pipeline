@@ -27,12 +27,40 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 ### MatLab-scripts
 1. Extracting metabolites' name from GEMs: `meta-gecko-extractMet.m`
 2. Converting GEMs to ecGEMs and FVA: `meta-gecko.m`
-3. Changed functions of GECKO3.
-4. Other related files: `metName.inhouseDB.txt` 
+3. Adapter template for customizing adapter files for each bin: `adapterTemplate.m`
+4. Changed functions of GECKO3:
+   1) `makeEcModel.m`: key function to change GEM to ecGEM.
+   2) `getECfromDatabase_uniprot.m`
+   3) `getECfromDatabase_kegg.m`
+   4) `fuzzyKcatMatching.m`
+   5) `loadConventionalGEM.m`: importModel set to false to allow exchange reations showing. 
+6. Other related files: 
+   1) `metName.inhouseDB.txt`: Extracted SMILEs by metabolites' names from PubChem API.
+   2) `organism.txt`: KEGG prokaryote organism names and ID, for extracting the KEGG ID. 
+   3) `taxonomy.R`: Fuzzy matching taxonomies for each bin to KEGG and Uniprot database to extract the KEGG ID and Uniprot ID. 
+   4) `UniprotID1.txt` and `UniprotID2.txt: Uniprot ID for extracting EC numbers from Uniprot by species name.
+   5) `kegglist.txt`: KEGG prokaryote organism names and ID, for extracting the EC numbers from KEGG by species name.
+
+scripts to run matlab 
+```bash
+# extract unique metabolite names
+while read line; do 
+	echo "$line"
+	arch -x86_64 /Applications/MATLAB_R2024b.app/bin/matlab \
+      -nodisplay -nosplash -nodesktop < /Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/ecGEMs/${line}/meta-gecko-extractMet.m;
+done < s.txt
+
+# convert GEM to ecGEM
+while read line; do 
+	echo "$line"
+	arch -x86_64 /Applications/MATLAB_R2024b.app/bin/matlab \
+      -nodisplay -nosplash -nodesktop < /Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/ecGEMs/${line}/meta-gecko.m;
+done < s.txt
+```
 
 ### R-scripts 
-1. Extracting species KEGG ID and Uniprot ID:
-2. Extracting SMILEs (PubChem API)
+1. Extracting species KEGG ID and Uniprot ID: `taxonomy.R`
+2. Extracting SMILEs (PubChem API): `correctMetName.R`
 3. Metagenomics analysis
 4. Constructing Metabolite-Microbe network
 5. Reporter metabolite analysis
