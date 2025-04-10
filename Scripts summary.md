@@ -27,7 +27,8 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 ### MatLab-scripts
 1. Extracting metabolites' name from GEMs.
 2. Converting GEMs to ecGEMs and FVA.
-3. Changed functions of GECKO3. 
+3. Changed functions of GECKO3.
+4. Other related files: `metName.inhouseDB.txt` 
 
 ### R-scripts 
 1. Extracting species KEGG ID and Uniprot ID:
