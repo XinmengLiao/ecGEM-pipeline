@@ -41,7 +41,7 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
    4) `UniprotID1.txt` and `UniprotID2.txt: Uniprot ID for extracting EC numbers from Uniprot by species name.
    5) `kegglist.txt`: KEGG prokaryote organism names and ID, for extracting the EC numbers from KEGG by species name.
 
-scripts to run matlab 
+scripts to run matlab locally
 ```bash
 # extract unique metabolite names
 while read line; do 
