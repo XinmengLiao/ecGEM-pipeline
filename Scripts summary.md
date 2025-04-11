@@ -62,5 +62,6 @@ done < s.txt
 1. Extracting species KEGG ID and Uniprot ID: `taxonomy.R`
 2. Extracting SMILEs (PubChem API): `correctMetName.R`
 3. Metagenomics analysis
-4. Constructing Metabolite-Microbe network
-5. Reporter metabolite analysis
+4. Different abundance anlaysis for each species: `Differential abundance analysis.Rmd`
+5. Constructing Metabolite-Microbe network
+6. Reporter metabolite analysis
