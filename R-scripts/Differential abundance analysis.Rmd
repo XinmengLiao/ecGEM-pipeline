@@ -44,8 +44,6 @@ validation.files <- read.csv("/Users/xinmengliao/Documents/Project/20241117_CMA_
 mapread <- read.csv("abundance/abundance.mapped.txt",header = T,sep = "\t") 
 taxo.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.taxo.txt',header = T,sep = "\t")
 fva.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.fva.nozero.txt',sep = "\t",header = T)
-fva.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.fva.all.txt',sep = "\t",header = T)
-
 
 abund.all1 <- mapread %>% 
   filter(sample %in% validation.files$V1) %>% 
