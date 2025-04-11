@@ -21,14 +21,6 @@ colnames(validation.sample) <- sub("\\.{2,}[a-zA-Z0-9].*", "",colnames(validatio
 colnames(validation.sample) <- sub("\\.$", "",colnames(validation.sample))
 validation.sample$Insulin[which(validation.sample$Insulin == "<0.2")] = 0.1
 
-study.sample <- read.xlsx("PD_Supplementary1.xlsx",sheetIndex = 3,header = T) %>% 
-  mutate(ID = paste(Patient.ID, Visit.NO, sep = "_")) %>% 
-  mutate(ID = gsub("TR","Feces_",ID)) %>% 
-  mutate(ID = gsub(" ","", ID))
-colnames(study.sample) <- sub("\\.{2,}[a-zA-Z0-9].*", "",colnames(study.sample))
-colnames(study.sample) <- sub("\\.$", "",colnames(study.sample))
-study.sample$Insulin[which(study.sample$Insulin == "<0.2")] = 0.1
-samples <- list.files("stats/")
 validation.files <- read.csv("/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.sample.txt",header = F,sep = "\t")
 ```
 
