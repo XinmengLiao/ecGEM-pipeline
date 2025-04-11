@@ -253,7 +253,7 @@ fit_data <- Maaslin2(
 ```
 
 
-# 2.7 DA - LEfSe (can not used on paired data)
+# 2.7 DA - LEfSe (can not be used on paired data)
 ```{r}
 library(microbiomeMarker)
 lef_ps <- ps
