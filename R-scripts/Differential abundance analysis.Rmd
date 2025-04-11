@@ -1,0 +1,277 @@
+---
+title: "ecGEMs"
+author: "Xinmeng Liao"
+date: "2025-04-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(xlsx)
+library(ggpubr)
+library(tidyr)
+library(ggridges)
+library(ggsignif)
+library(DESeq2)
+library(ComplexHeatmap)
+library(colorRamp2)
+library(tidyverse)
+library(phyloseq)
+library(vegan)
+
+validation.sample <- read.xlsx("PD_Supplementary1.xlsx",sheetIndex = 2,header = T) %>% 
+  mutate(ID = paste(Patient.ID, Visit.NO, sep = "_")) %>% 
+  mutate(ID = gsub("TR","Feces_",ID)) %>% 
+  mutate(ID = gsub(" ","", ID))
+colnames(validation.sample) <- sub("\\.{2,}[a-zA-Z0-9].*", "",colnames(validation.sample))
+colnames(validation.sample) <- sub("\\.$", "",colnames(validation.sample))
+validation.sample$Insulin[which(validation.sample$Insulin == "<0.2")] = 0.1
+
+study.sample <- read.xlsx("PD_Supplementary1.xlsx",sheetIndex = 3,header = T) %>% 
+  mutate(ID = paste(Patient.ID, Visit.NO, sep = "_")) %>% 
+  mutate(ID = gsub("TR","Feces_",ID)) %>% 
+  mutate(ID = gsub(" ","", ID))
+colnames(study.sample) <- sub("\\.{2,}[a-zA-Z0-9].*", "",colnames(study.sample))
+colnames(study.sample) <- sub("\\.$", "",colnames(study.sample))
+study.sample$Insulin[which(study.sample$Insulin == "<0.2")] = 0.1
+samples <- list.files("stats/")
+validation.files <- read.csv("/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.sample.txt",header = F,sep = "\t")
+```
+
+# 1. Phyloseq project
+```{r}
+mapread <- read.csv("abundance/abundance.mapped.txt",header = T,sep = "\t") 
+taxo.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.taxo.txt',header = T,sep = "\t")
+fva.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.fva.nozero.txt',sep = "\t",header = T)
+fva.all <- read.csv('/Users/xinmengliao/Documents/Project/20241117_CMA_PD_ecGEMs/validation.fva.all.txt',sep = "\t",header = T)
+
+
+abund.all1 <- mapread %>% 
+  filter(sample %in% validation.files$V1) %>% 
+  dplyr::left_join(., taxo.all, by = c("bin" = "user_genome","sample")) %>% 
+  dplyr::select(sample, everything()) %>% unique() %>% 
+  mutate(sample_short = sapply(strsplit(split = "_S",sample),`[`,1)) %>% 
+  left_join(., validation.sample %>% dplyr::select(Visit.NO,ID), by = c("sample_short" = "ID")) %>%  
+  mutate(`Visit.NO` = case_when(`Visit.NO` == "Visit 1" ~ "Visit1", 
+                                `Visit.NO` == "Visit 3" ~ "Visit3", TRUE ~ NA))
+colnames(abund.all1)[25] <- "Visit"
+
+# Build phyloseq project
+otu_mat <- abund.all1 %>% 
+  dplyr::select(sample, classification,mapped, sample_short, Visit) %>% 
+  dplyr::select(sample, classification, mapped) %>% 
+  pivot_wider(.,values_from = mapped, names_from = classification,values_fill = 0) %>% unique()
+rowname <- otu_mat$sample
+otu_mat <- otu_mat %>% dplyr::select(-1) %>% as.matrix()
+rownames(otu_mat) <- rowname
+otu_mat = t(otu_mat)
+otu = otu_table(otu_mat,taxa_are_rows = T)
+
+sample_df <- abund.all1 %>% dplyr::select(sample, Visit) %>% unique() %>% 
+  mutate(subject = sapply(strsplit(split = "_Visit",sample),`[`,1))
+rownames(sample_df) <- sample_df$sample
+sample_info <- sample_data(sample_df) 
+
+tax_mat <- abund.all1 %>% 
+  mutate(Kingdom = sub(".*d__([^;]+);.*", "\\1", classification),
+         Phylum = sub(".*p__([^;]+);.*", "\\1", classification),
+         Class = sub(".*c__([^;]+);.*", "\\1", classification),
+         Order = sub(".*o__([^;]+);.*", "\\1", classification),
+         Family = sub(".*f__([^;]+);.*", "\\1", classification),
+         Genus = sub(".*g__([^;]+);.*", "\\1", classification),
+         Species = sapply(strsplit(classification, split = ";s__"),`[`,2),
+         Kingdom = sub("_[A-Z]", "", Kingdom),
+         Phylum = sub("_[A-Z]", "", Phylum),
+         Class = sub("_[A-Z]", "", Class),
+         Order = sub("_[A-Z]", "", Order),
+         Family = sub("_[A-Z]", "", Family),
+         Genus = sub("_[A-Z]", "", Genus),
+         Species = sub("_[A-Z] ", "", Species),
+         ) %>% 
+  dplyr::select(classification, Kingdom:Species) %>% unique() %>% 
+  mutate_all( ~ifelse(is.na(.), "Unclassified", .))
+rowname <- tax_mat$classification
+tax_mat <- tax_mat %>% dplyr::select(-1) %>% as.matrix()
+rownames(tax_mat) <- rowname
+tax <- tax_table(as.matrix(tax_mat))
+tax[is.na(tax)] <- ""
+
+ps <- phyloseq(otu, sample_info, tax)
+otu_table(ps)[is.na(otu_table(ps))] <- 0
+```
+
+# 2.1 DA - Wilcoxon (CLR) with absolute abundance
+```{r}
+library(compositions)
+library(mia)
+tse <- makeTreeSEFromPhyloseq(ps)
+tse_spe <- agglomerateByRank(tse, rank = "Species")
+tse_spe <- transformAssay(tse_spe, method = "clr", pseudocount = 1)
+abundance_analysis_data <- data.frame(t(assay(tse_spe, "clr")))
+
+abundance_analysis_data <- cbind(abundance_analysis_data, Visit = colData(tse_spe)$Visit)
+abundance_analysis_data$Visit <- colData(tse_spe)$Visit
+abundance_analysis_data$subject <- colData(tse_spe)$subject
+abundance_analysis_data <- abundance_analysis_data[order(abundance_analysis_data$subject, abundance_analysis_data$Visit), ]
+
+genera <- names(abundance_analysis_data[, !names(abundance_analysis_data) %in% c("Visit","subject")])
+wilcoxon_p <- c() # Initialize empty vector for p-values
+
+# Do "for loop" over selected column names
+for (i in genera) {
+  result <- wilcox.test(abundance_analysis_data[, i] ~ Visit,
+                        data = abundance_analysis_data, paird = T)
+  wilcoxon_p[[i]]  <- result$p.value
+
+}
+
+wilcoxon_p <- data.frame(taxa =  names(wilcoxon_p),
+                         p_raw = unlist(wilcoxon_p))
+wilcoxon_p$p_adjusted <- p.adjust(wilcoxon_p$p_raw, method = "fdr")
+```
+
+# 2.2 DA - DESeq2 with absolute abundance
+```{r}
+# DESeq2 from Phyloseq project
+sample_data(ps)$Visit <- as.factor(sample_data(ps)$Visit) # factorize for DESeq2
+ps.taxa <- tax_glom(ps, taxrank = 'Species', NArm = FALSE)
+
+# filter sparse features, with > 90% zeros
+#ps.taxa.pse.sub <- prune_taxa(rowSums(otu_table(ps.taxa.sub) == 0) < ncol(otu_table(ps.taxa.sub)) * 0.95, ps.taxa.sub)
+
+ps_ds = phyloseq_to_deseq2(ps.taxa, ~ subject + Visit)
+
+# use alternative estimator on a condition of "every gene/microbe contains a sample with a zero"
+ds <- estimateSizeFactors(ps_ds, type="poscounts")
+ds = DESeq(ds, test="Wald", fitType="local")
+deseq.res_shrink <- lfcShrink(ds, coef = "Visit_Visit3_vs_Visit1", type = "apeglm") %>% as.data.frame()
+#deseq.res = results(ds) %>% as.data.frame()
+```
+
+# 2.3 DA - edgeR with absolute abundance
+```{r}
+library(edgeR)
+
+counts <- as(otu_table(ps), "matrix")
+group <- sample_data(ps)$Visit
+group <- as.factor(group) 
+subject <- sample_data(ps)$subject
+subject <- as.factor(subject)
+
+dge <- DGEList(counts = counts, group = group)
+#keep <- filterByExpr(dge, design = model.matrix(~ group + subject))
+#dge <- dge[keep, , keep.lib.sizes = F]
+#dge <- dge[rowSums(dge$counts) > 0, , keep.lib.sizes = FALSE] # remove the species abundance = 0 in all samples (shouldn't have)
+dge <- calcNormFactors(dge) # normalization
+design <- model.matrix(~ group + subject)
+dge <- estimateDisp(dge, design)
+fit <- glmFit(dge, design)
+lrt <- glmLRT(fit,coef = 2)
+edge.res <- topTags(lrt, n = Inf)
+edge.res.all <- edge.res$table %>% as.data.frame()
+```
+
+
+# 2.4 DA - ANCOM-BC with absolute abundance
+```{r}
+library(ANCOMBC)
+pseq_spe <- phyloseq::tax_glom(ps, taxrank = "Species")
+
+out <- ancombc(phyloseq = pseq_spe, 
+               formula = "Visit + subject", 
+               p_adj_method = "fdr", 
+               prv_cut = 0,
+               lib_cut = 0, 
+              group = NULL, 
+              struc_zero = F, 
+              neg_lb = TRUE, 
+              tol = 1e-5, 
+              max_iter = 100, 
+              conserve = TRUE, 
+              #alpha = 0.05, 
+              global = F)
+
+# Ancombc2 calculation is too strict for our paired PD data. No results. 
+out <- ancombc2(data = pseq_spe, 
+              fix_formula = "Visit", 
+              #rand_formula = "(1 | subject)",
+              p_adj_method = "fdr", 
+              prv_cut = 0,
+              lib_cut = 0, 
+              group = NULL, 
+              struc_zero = F, 
+              neg_lb = TRUE, 
+              em_control = list(tol = 1e-5, max_iter = 100),
+              global = F)
+
+ancombc.lfc <- out$res$lfc
+ancombc.pvalue <- out$res$p_val
+ancombc.padj <- out$res$q_val
+ancombc.diffabn <- out$res$diff_abn
+```
+
+
+# 2.5 DA - ALDEx2 with absolute abundance
+```{r}
+# ALDE*2
+library(ALDEx2)
+
+sample_data(ps)$Visit <- as.character(sample_data(ps)$Visit)
+group = sample_data(ps)$Visit
+otu_mat = as.data.frame(otu_table(ps)) %>% as.matrix()
+
+alde.res <- aldex(
+  otu_mat,       
+  group,  
+  mc.samples = 128,  
+  test = "t",       
+  effect = TRUE,  
+  denom = "all",  
+  paired.test = T
+)
+
+head(alde.res)
+x_sig <- alde.res[alde.res$wi.eBH < 0.05, ]
+```
+
+# 2.6 DA - MaAsLin2 with absolute abundance
+```{r}
+library(Maaslin2)
+feature_table <- as.data.frame(otu_table(ps))
+metadata <- as.data.frame(as(sample_data(ps), "data.frame"))
+metadata$subject <- as.character(metadata$subject)
+metadata$Visit <- as.factor(metadata$Visit)
+
+fit_data <- Maaslin2(
+  input_data = feature_table,
+  input_metadata = metadata,
+  output = "maaslin2_output",
+  fixed_effects = c("Visit"),
+  random_effects = c("subject"), # paried
+  min_prevalence = 0,
+  min_abundance = 0
+)
+```
+
+
+# 2.7 DA - LEfSe (can not used on paired data)
+```{r}
+library(microbiomeMarker)
+lef_ps <- ps
+table(sample_data(lef_ps)$Visit)
+
+lefse_res <- run_lefse(
+  lef_ps, 
+  group = "Visit",   
+  norm = "CPM",
+  lda_cutoff = 0,     # do not filter any result
+  multigrp_strat = F,
+  kw_cutoff = 1,
+  wilcoxon_cutoff = 1
+)
+
+marker_table(lefse_res)
+lefse_res_all <- marker_table(lefse_res) %>% as.data.frame()
+```
+
