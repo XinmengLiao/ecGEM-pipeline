@@ -86,7 +86,7 @@ otu_table(ps)[is.na(otu_table(ps))] <- 0
 
 # 2.1 DA - Wilcoxon (CLR) with absolute abundance
 ```{r}
-library(compositions)
+#library(compositions)
 library(mia)
 tse <- makeTreeSEFromPhyloseq(ps)
 tse_spe <- agglomerateByRank(tse, rank = "Species")
@@ -101,12 +101,10 @@ abundance_analysis_data <- abundance_analysis_data[order(abundance_analysis_data
 genera <- names(abundance_analysis_data[, !names(abundance_analysis_data) %in% c("Visit","subject")])
 wilcoxon_p <- c() # Initialize empty vector for p-values
 
-# Do "for loop" over selected column names
 for (i in genera) {
   result <- wilcox.test(abundance_analysis_data[, i] ~ Visit,
                         data = abundance_analysis_data, paird = T)
   wilcoxon_p[[i]]  <- result$p.value
-
 }
 
 wilcoxon_p <- data.frame(taxa =  names(wilcoxon_p),
