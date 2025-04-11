@@ -1,5 +1,5 @@
 ---
-title: "ecGEMs"
+title: "Differential abundance anlaysis"
 author: "Xinmeng Liao"
 date: "2025-04-02"
 output: html_document
