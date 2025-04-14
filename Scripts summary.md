@@ -13,7 +13,7 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 3. Refining contigs (Metawrap) \
    3.1 Crossmap: `crossmap.smk` \
    3.2.1 Maxbin: `snakefile_maxbin1.smk` need to double confirm the parameter is 0.8 or 0.9. \
-   3.2.2 Metabat2: \
+   3.2.2 Metabat2: `metabat.smk` \
    3.2.3 Concoct: `concoct.smk` \
    3.3 Refine: `refine.smk` \
    3.4 Reassemble: `reassemble.smk`
