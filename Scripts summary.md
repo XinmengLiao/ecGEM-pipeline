@@ -12,7 +12,7 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 2. Assembling raw reads (megahit): `megahit.smk`
 3. Refining contigs (Metawrap) \
    3.1 Crossmap: `crossmap.smk` \
-   3.2.1 Maxbin: `snakefile_maxbin1.smk` 0.9. \
+   3.2.1 Maxbin: `maxbin.smk` 0.9. \
    3.2.2 Metabat2: `metabat.smk` \
    3.2.3 Concoct: `concoct.smk` \
    3.3 Refine: `refine.smk` \
