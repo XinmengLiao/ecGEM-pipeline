@@ -22,7 +22,7 @@ snakemake -s abundance.single.change.smk -j 1 --cluster "sbatch -A naiss2024-22-
 6. Creating GEMs (CarveMe): `carveme.smk`
 7. Converting GEMs to ecGEMs:`GEMtoECGEM.smk`
 8. Calculating abundance (bwa):  `abundance.smk`
-9. Annotating prokaryotic genome (Prokka): ``
+9. Annotating prokaryotic genome (Prokka): `prokka.smk`
 
 ### MatLab-scripts
 1. Extracting metabolites' name from GEMs: `meta-gecko-extractMet.m`
