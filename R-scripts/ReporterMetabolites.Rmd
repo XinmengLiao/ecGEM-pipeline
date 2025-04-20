@@ -173,10 +173,8 @@ rma <- function(network,pvalue,microbeFoldChanges = F,filter.extreme = F,reactio
   }
   
   if(microbeFoldChanges == T){
-    network.up <- network %>% 
-      filter(logFC > 0)
-    network.down <- network %>% 
-      filter(logFC < 0) 
+    network.up <- network %>% filter(logFC > 0)
+    network.down <- network %>% filter(logFC < 0) 
     met.up <- rma.sub(network.up,pvalue = "FDR",reaction = fva.all1,filter.extreme = T)
     met.down <- rma.sub(network.down,pvalue = "FDR",reaction = fva.all1,filter.extreme = T)
     return(list(all.met = top_mets, increased.met = met.up, decreased.met = met.down))
@@ -190,8 +188,9 @@ rma.all <- rma(network.all,pvalue = "FDR",reaction = fva.all1,
 rma.uptake <- rma(network.uptake,pvalue = "FDR",reaction = fva.all1,
                   filter.extreme = T,microbeFoldChanges = T)
 
-df1 <- rma.all[2] %>% as.data.frame()
-df2<- rma.all[3] %>% as.data.frame()
+# Extract the up- and down-regulated metabolites
+up.df <- rma.uptake[2] %>% as.data.frame()
+down.df <- rma.uptake[3] %>% as.data.frame()
 
 ```
 
