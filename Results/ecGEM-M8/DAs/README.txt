@@ -1,1 +1,2 @@
-These DAs results are generated for taxo species levels. 15 taxo without specific species levels are removed. 
+These DAs results are generated for taxo species levels. 15 taxo without specific species levels are removed. \
+Totally 588 species.
