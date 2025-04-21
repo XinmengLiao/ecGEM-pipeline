@@ -18,6 +18,7 @@ cd(GEMpath)
 GEMfiles = dir(fullfile(GEMpath, '*.xml'));
 currentPath = pwd
 dlkcat_scriptDir = '/Users/xinmengliao/Documents/Project/20231127_GEMs/dlkcat';
+minus_growth = table([], [], [], 'VariableNames', {'sample', 'bin', 'growth'});
 
 for i = 1:length(GEMfiles)
     [~, bin, ~] = fileparts(GEMfiles(i).name);  % get bins name
@@ -266,10 +267,6 @@ for i = 1:length(GEMfiles)
     ecmodel_path = strcat(model_tmp)
     ecModel = readYAMLmodel(ecmodel_path)
 
-   
-    % Store the ecModel with optimal growth rate == 0 
-    minus_growth = table([], [], [], 'VariableNames', {'sample', 'bin', 'growth'});
-
     % check the reactions in ecModel ensure exchange reations are completed 
     [ecModel.rxns, constructEquations(ecModel)];
     
@@ -294,6 +291,8 @@ for i = 1:length(GEMfiles)
     objFlux = sol_opt.x(ecModel.c>0)
 
     if objFlux <= 0
+        parts = strsplit(ecGEMpath, '/'); 
+        sample = parts{end};  
         sample = string(sample);
         bin = string(bin);
         tmp = table(sample, bin, objFlux, 'VariableNames', {'sample', 'bin', 'growth'});            
@@ -337,4 +336,7 @@ for i = 1:length(GEMfiles)
         writetable(exchange_results, outputfile,'Delimiter', '\t', 'QuoteStrings', false, 'FileType', 'text');
     end  
 end
+
+minus_file = fullfile(ecGEMpath, 'minus_growth.txt')
+writetable(minus_growth, minus_file,'Delimiter', '\t', 'QuoteStrings', false, 'FileType', 'text');
 
