@@ -14,7 +14,7 @@ Totally 603 taxo, 46 samples, paired data (Day0 and Day 84)
 
 
 Totally 588 taxo (species levels) paired data (Day0 and Day 84)
-### Number of significant species by differen methods
+### Number of significant species by differen methods (No filtration)
 | Method        | No. of P value < 0.05 | No. of P adj < 0.05 |
 |---------------|-----------------------|---------------------|
 | Wilcoxon (CLR) | 1                     | 0                   |
@@ -26,3 +26,21 @@ Totally 588 taxo (species levels) paired data (Day0 and Day 84)
 | MaAsLin2       | 6                     | 0                   |
 **LefSe is not suitable for paired data. 
 Wilcoxon (CLR): Coprococcus.aceti
+
+### Filtration 1: Exist both in Day0 and Day84
+Totally 243 taxo (species levels) paired data (Day0 and Day 84)
+| Method        | No. of P value < 0.05 | No. of P adj < 0.05 |
+|---------------|-----------------------|---------------------|
+| Wilcoxon (CLR) | 1                     | 0                   |
+| DESeq2         | 35                   | 35                 |
+| edgeR          | 67                   | 38                  |
+| ANCOM-BC       | 36                    | 1                   |
+
+### Filtration 2: Exist in at least 5% of the samples
+Totally 227 taxo (species levels) paired data (Day0 and Day 84)
+| Method        | No. of P value < 0.05 | No. of P adj < 0.05 |
+|---------------|-----------------------|---------------------|
+| Wilcoxon (CLR) | 1                     | 0                   |
+| DESeq2         |                    |                  |
+| edgeR          | 115                   | 42                  |
+| ANCOM-BC       | 85                    | 2                   |
