@@ -111,7 +111,8 @@ rma <- function(network,pvalue,microbeFoldChanges = F,filter.extreme = F,reactio
                               zscore == Inf ~ 4, TRUE ~ zscore)) 
   
   if(filter.extreme == T){
-    network <- network %>% filter(zscore!= -4 & zscore != 4)
+  # filter pvalue = 1
+    network <- network %>% filter(zscore!= -4) 
   }
     
   # For each metabolite, find out the associated microbes
