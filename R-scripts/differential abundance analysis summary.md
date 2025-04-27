@@ -1,6 +1,6 @@
 Totally 603 taxo, 46 samples, paired data (Day0 and Day 84)
 
-### Number of significant species by differen methods
+### Number of significant species by different methods
 | Method        | No. of P value < 0.05 | No. of P adj < 0.05 |
 |---------------|-----------------------|---------------------|
 | Wilcoxon (CLR) | 1                     | 0                   |
@@ -15,7 +15,7 @@ Totally 603 taxo, 46 samples, paired data (Day0 and Day 84)
 
 Totally 588 taxo (species levels) paired data (Day0 and Day 84)
 **LefSe is not suitable for paired data. 
-### Number of significant species by differen methods (No filtration)
+### Number of significant species by different methods (No filtration)
 | Method        | No. of P value < 0.05 | No. of P adj < 0.05 | No. of sig increased metabolites | No. of sig decreased metabolites |
 |---------------|-----------------------|---------------------|-----------------------|---------------------|
 | Wilcoxon (CLR) | 1                     | 0                   |
