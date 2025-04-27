@@ -186,13 +186,15 @@ rma <- function(network,pvalue,logFC, microbeFoldChanges = F,filter.extreme = F,
   }
 
   if(microbeFoldChanges == T){
+    met.all <- rma.sub(network)
     network.up <- network %>% filter(.data[[logFC]] > 0)
     network.down <- network %>% filter(.data[[logFC]]  < 0) 
     met.up <- rma.sub(network.up)
     met.down <- rma.sub(network.down)
-    return(list(all.met = metabolite_scores, increased.met = met.up, decreased.met = met.down))
+    return(list(all.met = met.all, increased.met = met.up, decreased.met = met.down))
   }else{
-    return(list(all.met = metabolite_scores))
+    met.all <- rma.sub(network)
+    return(list(all.met = met.all))
   }
 }
 
