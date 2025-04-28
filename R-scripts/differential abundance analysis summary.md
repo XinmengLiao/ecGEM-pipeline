@@ -45,7 +45,17 @@ Totally 227 taxo (species levels) paired data (Day0 and Day 84)
 | edgeR          | 96                   | 67                  |184 (filtered out FDR > 0.99)| 133|
 | ANCOM-BC       | 46                    | 2                   |
 
-### Results:
-No filtration, filtered out FDR > 0.99: \
-  for edgeR, only increased uptake network has sig L-/D-Serine, and L-/D-tartrate. Cystine has lower pvalue in increased than decreased. nicotinamide has lower pvalue in increased than decreased. But pvalues for cystine and nicotinamide are not sig. \
-  for DESeq2, only increased network has sig L-Serine and D-Serine. But increased one has cystine which is not sig. L-/D-Tartrates are sig in increased only. 
+### Results: 
+### Results (p-corrected in uptake network)
+| Method           | DA                         | D-serine | L-serine | Cysteine | D-tartrate | L-tartrate |
+|------------------|-----------------------------|----------|----------|---------|------------|------------|
+| rm.org.up        | edgeR                       | 0.25     | 0.036 *  | 0.013 * | 0.83       | 0.50       |
+| rm.org.down      | edgeR                       | 0.80     | 0.079    | 0.74    | 0.99       | 0.98       |
+| rm.org.up        | edgeR (filtered pvalue<1)    | 0.009    | 0.13     | 0.76    | 0.59       | 0.12       |
+| rm.org.down      | edgeR (filtered pvalue<1)    | 0.46     | 0.92     | 0.37    | 0.99       | 0.96       |
+| rm.org.up        | DESeq2                      | 0.047 *  | 0.007 *  | 0.27    | 0.24       | 0.026      |
+| rm.org.down      | DESeq2                      | 0.053    | 0.32     | 0.96    | 0.93       | 0.90       |
+| rm.org.up        | DESeq2 (filtered pvalue<0.99)| 0.051    | 0.005 *  | 0.32    | 0.21       | 0.024 *    |
+| rm.org.down      | DESeq2 (filtered pvalue<0.99)| 0.06     | 0.31     | 0.90    | 0.35       | 0.91       |
+
+
